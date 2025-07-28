@@ -8128,6 +8128,9 @@
         }
       }
     },
+    "Compact Layout" : {
+
+    },
     "Config" : {
       "localizations" : {
         "it" : {
@@ -19097,6 +19100,9 @@
           }
         }
       }
+    },
+    "Layout" : {
+
     },
     "LED Heartbeat" : {
       "localizations" : {

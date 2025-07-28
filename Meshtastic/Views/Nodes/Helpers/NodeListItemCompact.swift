@@ -9,7 +9,7 @@ import SwiftUI
 import CoreLocation
 import Foundation
 
-struct NodeListItem: View {
+struct NodeListItemCompact: View {
 
     // Accessibility: Synthesized description for VoiceOver
     private var accessibilityDescription: String {
@@ -138,15 +138,18 @@ struct NodeListItem: View {
 		NavigationLink(value: node) {
 			LazyVStack(alignment: .leading) {
 				HStack {
+//					User Icon
 					VStack(alignment: .center) {
-						CircleText(text: node.user?.shortName ?? "?", color: Color(UIColor(hex: UInt32(node.num))), circleSize: 70)
+						CircleText(text: node.user?.shortName ?? "?", color: Color(UIColor(hex: UInt32(node.num))), circleSize: 50)
 							.padding(.trailing, 5)
 						if node.latestDeviceMetrics != nil {
 							BatteryCompact(batteryLevel: node.latestDeviceMetrics?.batteryLevel ?? 0, font: .caption, iconFont: .callout, color: .accentColor)
 								.padding(.trailing, 5)
 						}
 					}
+//					User Info
 					VStack(alignment: .leading) {
+//						User name/encryption
 						HStack {
 							let (image, color) = userKeyStatus
 							IconAndText(systemName: image,
@@ -169,19 +172,6 @@ struct NodeListItem: View {
 										imageColor: node.isOnline ? .green : .orange,
 										text: node.lastHeard?.formatted() ?? "Unknown Age".localized)
 						}
-						let role = DeviceRoles(rawValue: Int(node.user?.role ?? 0))
-						IconAndText(systemName: role?.systemName ?? "figure",
-									text: "Role: \(role?.name ?? "Unknown".localized)")
-						if node.user?.unmessagable ?? false {
-							IconAndText(systemName: "iphone.slash",
-										renderingMode: .multicolor,
-										text: "Unmonitored")
-						}
-						if node.isStoreForwardRouter {
-							IconAndText(systemName: "envelope.arrow.triangle.branch",
-										renderingMode: .multicolor,
-										text: "Store & Forward".localized)
-						}
 
 						if node.positions?.count ?? 0 > 0 && connectedNode != node.num {
 							HStack {
@@ -193,17 +183,6 @@ struct NodeListItem: View {
 										.symbolRenderingMode(.multicolor)
 										.frame(width: 30)
 									DistanceText(meters: metersAway)
-										.font(UIDevice.current.userInterfaceIdiom == .phone ? .callout : .caption)
-										.foregroundColor(.gray)
-									let trueBearing = getBearingBetweenTwoPoints(point1: myCoord, point2: nodeCoord)
-									let headingDegrees = Measurement(value: trueBearing, unit: UnitAngle.degrees)
-									Image(systemName: "location.north")
-										.font(.callout)
-										.symbolRenderingMode(.multicolor)
-										.clipShape(Circle())
-										.rotationEffect(Angle(degrees: headingDegrees.value))
-									let heading = Measurement(value: trueBearing, unit: UnitAngle.degrees)
-									Text("\(heading.formatted(.measurement(width: .narrow, numberFormatStyle: .number.precision(.fractionLength(0)))))")
 										.font(UIDevice.current.userInterfaceIdiom == .phone ? .callout : .caption)
 										.foregroundColor(.gray)
 								}
@@ -220,36 +199,24 @@ struct NodeListItem: View {
 											text: "MQTT")
 							}
 						}
-						if node.hasPositions || node.hasEnvironmentMetrics || node.hasDetectionSensorMetrics || node.hasTraceRoutes {
-							HStack {
-								IconAndText(systemName: "scroll", text: "Logs:")
-								if node.hasDeviceMetrics {
-									DefaultIcon(systemName: "flipphone")
-								}
-								if node.hasPositions {
-									DefaultIcon(systemName: "mappin.and.ellipse")
-								}
-								if node.hasEnvironmentMetrics {
-									DefaultIcon(systemName: "cloud.sun.rain")
-								}
-								if node.hasDetectionSensorMetrics {
-									DefaultIcon(systemName: "sensor")
-								}
-								if node.hasTraceRoutes {
-									DefaultIcon(systemName: "signpost.right.and.left")
-								}
+						let role = DeviceRoles(rawValue: Int(node.user?.role ?? 0))
+
+//						Compact Info Stack
+						HStack {
+							Spacer()
+							Image(systemName: role?.systemName ?? "figure")
+							if node.user?.unmessagable ?? false {
+								Image(systemName: "iphone.slash")
 							}
-						}
-						if node.hopsAway > 0 {
-							HStack {
-								IconAndText(systemName: "hare", text: "Hops Away:")
+							if node.isStoreForwardRouter {
+								Image(systemName: "envelope.arrow.triangle.branch")
+							}
+							if node.hopsAway > 0 {
 								Image(systemName: "\(node.hopsAway).square")
 									.font(.title2)
-							}
-						} else {
-							if node.snr != 0 && !node.viaMqtt {
-								LoRaSignalStrengthMeter(snr: node.snr, rssi: node.rssi, preset: modemPreset, compact: true)
-									.padding(.top, node.hasPositions || node.hasEnvironmentMetrics || node.hasDetectionSensorMetrics || node.hasTraceRoutes ? 0 : 15)
+							} else {
+								Image(systemName: "dot.radiowaves.left.and.right")
+									.foregroundColor(getSnrColor(snr: node.snr, preset: modemPreset))
 							}
 						}
 					}
@@ -265,56 +232,17 @@ struct NodeListItem: View {
     }
 }
 
-struct DefaultIcon: View {
-	let systemName: String
-
-	var body: some View {
-		Image(systemName: systemName)
-			.symbolRenderingMode(.hierarchical)
-			.font(.callout)
-	}
-}
-
-struct IconAndText: View {
-	let systemName: String
-	var imageColor: Color?
-	var renderingMode: SymbolRenderingMode = .hierarchical
-	let text: String
-	var textColor: Color = .gray
-
-	@ViewBuilder
-	var image: some View {
-		if let color = imageColor {
-			Image(systemName: systemName)
-				.foregroundColor(color)
-		} else {
-			Image(systemName: systemName)
-		}
-	}
-
-	var body: some View {
-		HStack {
-			image
-				.font(.callout)
-				.symbolRenderingMode(renderingMode)
-				.frame(width: 30)
-			Text(text)
-				.font(UIDevice.current.userInterfaceIdiom == .phone ? .callout : .caption)
-				.foregroundColor(textColor)
-				.allowsTightening(true)
-		}
-	}
-}
-
 #Preview {
 	List {
-		NodeListItem(node: {
+		NodeListItemCompact(node: {
 			let context = PersistenceController.preview.container.viewContext
 			let nodeInfo = NodeInfoEntity(context: context)
 			let user = UserEntity(context: context)
 			user.longName = "Test User"
 			user.shortName = "TU"
+			user.unmessagable = true
 			nodeInfo.user = user
+			nodeInfo.lastHeard = Date.now
 			return nodeInfo
 		}(), connected: true, connectedNode: 0, modemPreset: .longFast)
 	}

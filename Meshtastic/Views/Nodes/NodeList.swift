@@ -18,6 +18,8 @@ struct NodeList: View {
 	@ObservedObject
 	var router: Router
 
+	@AppStorage("enableCompactLayout") private var enableCompactLayout: Bool = false
+
 	@State private var columnVisibility = NavigationSplitViewVisibility.all
 	@State private var selectedNode: NodeInfoEntity?
 	@State private var searchText = ""
@@ -146,16 +148,30 @@ struct NodeList: View {
 		// Use forceRefreshID to completely rebuild the view when notifications update the selected node
 		NavigationSplitView(columnVisibility: $columnVisibility) {
 			List(nodes, id: \.self, selection: $selectedNode) { node in
-				NodeListItem(
-					node: node,
-					connected: bleManager.connectedPeripheral?.num ?? -1 == node.num,
-					connectedNode: bleManager.connectedPeripheral?.num ?? -1
-				)
-				.contextMenu {
-					contextMenuActions(
+				if $enableCompactLayout {
+					NodeListItemCompact(
 						node: node,
-						connectedNode: connectedNode
+						connected: bleManager.connectedPeripheral?.num ?? -1 == node.num,
+						connectedNode: bleManager.connectedPeripheral?.num ?? -1
 					)
+					.contextMenu {
+						contextMenuActions(
+							node: node,
+							connectedNode: connectedNode
+						)
+					}
+				} else {
+					NodeListItem(
+						node: node,
+						connected: bleManager.connectedPeripheral?.num ?? -1 == node.num,
+						connectedNode: bleManager.connectedPeripheral?.num ?? -1
+					)
+					.contextMenu {
+						contextMenuActions(
+							node: node,
+							connectedNode: connectedNode
+						)
+					}
 				}
 			}
 			.sheet(isPresented: $isEditingFilters) {

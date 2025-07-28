@@ -18,6 +18,8 @@ struct AppSettings: View {
 	@AppStorage("environmentEnableWeatherKit") private var  environmentEnableWeatherKit: Bool = true
 	@AppStorage("enableAdministration") private var  enableAdministration: Bool = false
 	@AppStorage("usageDataAndCrashReporting") private var usageDataAndCrashReporting: Bool = true
+	@AppStorage("enableCompactLayout") private var enableCompactLayout: Bool = false
+
 	var body: some View {
 		VStack {
 			Form {
@@ -49,6 +51,11 @@ struct AppSettings: View {
 					}
 					.sheet(isPresented: $isPresentingAppIconSheet) {
 						AppIconPicker(isPresenting: self.$isPresentingAppIconSheet)
+					}
+				}
+				Section(header: Text("Layout")) {
+					Toggle(isOn: $enableCompactLayout) {
+						Label("Compact Layout", systemImage: "arrowshape.right.arrowshape.left")
 					}
 				}
 				Section(header: Text("environment")) {
