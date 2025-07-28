@@ -240,18 +240,7 @@ struct NodeListItem: View {
 								}
 							}
 						}
-						if node.hopsAway > 0 {
-							HStack {
-								IconAndText(systemName: "hare", text: "Hops Away:")
-								Image(systemName: "\(node.hopsAway).square")
-									.font(.title2)
-							}
-						} else {
-							if node.snr != 0 && !node.viaMqtt {
-								LoRaSignalStrengthMeter(snr: node.snr, rssi: node.rssi, preset: modemPreset, compact: true)
-									.padding(.top, node.hasPositions || node.hasEnvironmentMetrics || node.hasDetectionSensorMetrics || node.hasTraceRoutes ? 0 : 15)
-							}
-						}
+						HopsWidget(node: node, modemPreset: modemPreset)
 					}
 					.frame(maxWidth: .infinity, alignment: .leading)
 				}
@@ -263,6 +252,26 @@ struct NodeListItem: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityDescription)
     }
+}
+
+struct HopsWidget: View {
+	var node: NodeInfoEntity
+	var modemPreset: ModemPresets
+	
+	var body: some View {
+		if node.hopsAway > 0 {
+			HStack {
+				IconAndText(systemName: "hare", text: "Hops Away:")
+				Image(systemName: "\(node.hopsAway).square")
+					.font(.title2)
+			}
+		} else {
+			if node.snr != 0 && !node.viaMqtt {
+				LoRaSignalStrengthMeter(snr: node.snr, rssi: node.rssi, preset: modemPreset, compact: true)
+					.padding(.top, node.hasPositions || node.hasEnvironmentMetrics || node.hasDetectionSensorMetrics || node.hasTraceRoutes ? 0 : 15)
+			}
+		}
+	}
 }
 
 struct DefaultIcon: View {

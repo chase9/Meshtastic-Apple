@@ -148,7 +148,7 @@ struct NodeList: View {
 		// Use forceRefreshID to completely rebuild the view when notifications update the selected node
 		NavigationSplitView(columnVisibility: $columnVisibility) {
 			List(nodes, id: \.self, selection: $selectedNode) { node in
-				if $enableCompactLayout {
+				if enableCompactLayout {
 					NodeListItemCompact(
 						node: node,
 						connected: bleManager.connectedPeripheral?.num ?? -1 == node.num,

@@ -204,13 +204,17 @@ struct NodeListItemCompact: View {
 //						Compact Info Stack
 						HStack {
 							Spacer()
-							Image(systemName: role?.systemName ?? "figure")
+//							Node Unmessagable Indicator
 							if node.user?.unmessagable ?? false {
 								Image(systemName: "iphone.slash")
 							}
+//							Node Store/Forward Indicator
 							if node.isStoreForwardRouter {
 								Image(systemName: "envelope.arrow.triangle.branch")
 							}
+//							Node Role Image
+							Image(systemName: role?.systemName ?? "figure")
+//							Node Hops/Signal Indicator
 							if node.hopsAway > 0 {
 								Image(systemName: "\(node.hopsAway).square")
 									.font(.title2)
