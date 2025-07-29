@@ -53,10 +53,12 @@ struct AppSettings: View {
 						AppIconPicker(isPresenting: self.$isPresentingAppIconSheet)
 					}
 				}
-				Section(header: Text("Layout")) {
-					Toggle(isOn: $enableCompactLayout) {
-						Label("Compact Layout", systemImage: "arrowshape.right.arrowshape.left")
+				Section(header: Text("Node List Density")) {
+					Picker("Node List Density", selection: $enableCompactLayout) {
+						Text("Standard").tag(false)
+						Text("Compact").tag(true)
 					}
+					.pickerStyle(.segmented)
 				}
 				Section(header: Text("environment")) {
 					VStack(alignment: .leading) {
